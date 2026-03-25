@@ -26,21 +26,21 @@
     "README.md"
   ],
   "dependencies": {
-    "@elysiajs/cors": "^1.2.0",
-    "@elysiajs/swagger": "^1.2.2",
-    "@prisma/client": "^6.5.0",
-    "axios": "^1.8.2",
+    "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/swagger": "^1.3.1",
+    "@prisma/client": "^6.19.2",
+    "axios": "^1.13.6",
     "elysia": "latest",
-    "elysia-rate-limit": "^4.2.1",
-    "node-html-parser": "^7.0.1",
-    "winston": "^3.17.0",
+    "elysia-rate-limit": "^4.5.1",
+    "node-html-parser": "^7.1.0",
+    "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "bun-types": "latest",
-    "prettier": "^3.5.3",
-    "prisma": "^6.5.0"
+    "prettier": "^3.8.1",
+    "prisma": "^6.19.2"
   },
   "module": "src/index.js"
 }
