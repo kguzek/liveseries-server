@@ -1,11 +1,11 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-import { rateLimit } from "elysia-rate-limit";
 
 import { getStatusText } from "@/lib/http";
 import { getLogger } from "@/lib/logger";
 import { loggingMiddleware } from "@/middleware/logging";
+import { rateLimitMiddleware } from "@/middleware/rate-limit";
 import { healthRouter } from "@/routes/health";
 import { subtitlesRouter } from "@/routes/liveseries/subtitles";
 import { videoRouter } from "@/routes/liveseries/video";
@@ -75,20 +75,7 @@ async function init() {
     .use(
       cors({ origin: CORS_ORIGINS, allowedHeaders: ["Content-Type", "Authorization"] }),
     )
-    .use(
-      rateLimit({
-        errorResponse: new Response(
-          JSON.stringify({
-            message: "Too many requests, please try again later.",
-            status: getStatusText(429),
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            status: 429,
-          },
-        ),
-      }),
-    )
+    .use(rateLimitMiddleware)
     .use(healthRouter)
     .use(staticRouter)
     .use(torrentsRouter)
