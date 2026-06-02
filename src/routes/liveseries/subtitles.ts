@@ -1,5 +1,5 @@
 import { join, resolve } from "path";
-import { Elysia, t } from "elysia";
+import { Elysia, file as elysiaFile, t } from "elysia";
 
 import { STATIC_CACHE_DURATION_MINS } from "@/lib/constants";
 import { setCacheControl } from "@/lib/http";
@@ -35,7 +35,7 @@ export const subtitlesRouter = new Elysia({ prefix: "/liveseries/subtitles" }).g
     const file = getSubtitleFile(filepath);
     if (!forceDownload && (await file.exists())) {
       setCacheControl(ctx, STATIC_CACHE_DURATION_MINS);
-      return file;
+      return elysiaFile(filepath);
     }
     const language = SUBTITLES_DEFAULT_LANGUAGE;
     return await downloadSubtitles(ctx, directory, filepath, episode, language);

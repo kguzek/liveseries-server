@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 
 import type { RequestMethod, WhitelistRole } from "@/lib/types";
 import {
@@ -57,84 +57,97 @@ const PERMISSIONS: Record<PermissionCategory, PermissionsRecord> = {
   cron: CRON_PERMISSIONS,
 };
 
-export const whitelistMiddleware = (app: Elysia) => {
-  const WHITELIST_DISABLED = process.env.DANGEROUSLY_DISABLE_WHITELIST === "true";
-  if (WHITELIST_DISABLED) {
-    logger.warn("Whitelist is disabled. This setting should not be used in production!");
-  }
-  const AUTHENTICATION_DISABLED =
-    process.env.DANGEROUSLY_DISABLE_AUTHENTICATION === "true";
-  if (AUTHENTICATION_DISABLED) {
-    logger.warn(
-      "Authentication is disabled. This setting should not be used in production!",
-    );
-  }
-  const GET_BYPASS_ENABLED = process.env.ALLOW_UNAUTHENTICATED_GET_REQUESTS === "true";
-  if (GET_BYPASS_ENABLED) {
-    logger.warn(
-      "Unauthenticated GET requests are allowed. This may lead to network overuse!",
-    );
-  }
+const WHITELIST_DISABLED = process.env.DANGEROUSLY_DISABLE_WHITELIST === "true";
+if (WHITELIST_DISABLED) {
+  logger.warn("Whitelist is disabled. This setting should not be used in production!");
+}
+const AUTHENTICATION_DISABLED =
+  process.env.DANGEROUSLY_DISABLE_AUTHENTICATION === "true";
+if (AUTHENTICATION_DISABLED) {
+  logger.warn(
+    "Authentication is disabled. This setting should not be used in production!",
+  );
+}
+const GET_BYPASS_ENABLED = process.env.ALLOW_UNAUTHENTICATED_GET_REQUESTS === "true";
+if (GET_BYPASS_ENABLED) {
+  logger.warn(
+    "Unauthenticated GET requests are allowed. This may lead to network overuse!",
+  );
+}
 
-  return app
-    .derive({ as: "scoped" }, async (ctx) => {
-      const whitelistResult = WHITELIST_DISABLED
-        ? { whitelist: [] }
-        : await refreshWhitelistMetadataIfNeeded();
-      const token =
-        ctx.headers["authorization"]?.match(/^Bearer (.+)$/)?.at(1) ||
-        ctx.cookie["payload-token"]?.value ||
-        ctx.query["access_token"];
-      const user = await getUserFromToken(token);
-      const whitelistRole = whitelistResult.message
-        ? null
-        : (findWhitelistedUser(user)?.role ?? null);
-      return {
-        user,
-        whitelistRole,
-        whitelistError: whitelistResult.message ? whitelistResult : null,
-      };
-    })
-    .onBeforeHandle(async (ctx) => {
-      const method = ctx.request.method.toUpperCase() as RequestMethod;
+export const whitelistMiddleware = new Elysia()
+  .guard({
+    as: "scoped",
+    headers: t.Object(
+      { authorization: t.Optional(t.String()) },
+      { additionalProperties: true },
+    ),
+    query: t.Object(
+      { access_token: t.Optional(t.String()) },
+      { additionalProperties: true },
+    ),
+    cookie: t.Cookie(
+      { "payload-token": t.Optional(t.String()) },
+      { additionalProperties: true },
+    ),
+  })
+  .derive({ as: "scoped" }, async (ctx) => {
+    const whitelistResult = WHITELIST_DISABLED
+      ? { whitelist: [] }
+      : await refreshWhitelistMetadataIfNeeded();
+    const token =
+      ctx.headers.authorization?.match(/^Bearer (.+)$/)?.at(1) ||
+      (ctx.cookie["payload-token"]?.value as string | undefined) ||
+      ctx.query.access_token;
+    const user = await getUserFromToken(token);
+    const whitelistRole = whitelistResult.message
+      ? null
+      : (findWhitelistedUser(user)?.role ?? null);
+    return {
+      user,
+      whitelistRole,
+      whitelistError: whitelistResult.message ? whitelistResult : null,
+    };
+  })
+  .onBeforeHandle(async (ctx) => {
+    const method = ctx.request.method.toUpperCase() as RequestMethod;
 
-      function isAllowed(category: PermissionCategory) {
-        const permissions = PERMISSIONS[category][method];
-        return (
-          permissions != null &&
-          permissions.some((endpoint) => ctx.path.startsWith(endpoint))
-        );
-      }
+    function isAllowed(category: PermissionCategory) {
+      const permissions = PERMISSIONS[category][method];
+      return (
+        permissions != null &&
+        permissions.some((endpoint) => ctx.path.startsWith(endpoint))
+      );
+    }
 
-      function reject(status: number, message: string) {
-        if (isAllowed("public")) {
-          return;
-        }
-        if (method === "GET" && GET_BYPASS_ENABLED) {
-          logger.verbose("Bypassing rejection for unauthorized GET request");
-          return;
-        }
-        ctx.set.status = status;
-        logger.http(`Rejecting ${method} ${ctx.path} with status ${status}`);
-        return { message, status: getStatusText(status) };
+    function reject(status: number, message: string) {
+      if (isAllowed("public")) {
+        return;
       }
+      if (method === "GET" && GET_BYPASS_ENABLED) {
+        logger.verbose("Bypassing rejection for unauthorized GET request");
+        return;
+      }
+      ctx.set.status = status;
+      logger.http(`Rejecting ${method} ${ctx.path} with status ${status}`);
+      return { message, status: getStatusText(status) };
+    }
 
-      if (ctx.whitelistError) {
-        logger.crit(ctx.whitelistError.message, ctx.whitelistError.error);
-        app.stop(false);
-        return reject(500, "The whitelist was not set up correctly");
-      }
+    if (ctx.whitelistError) {
+      logger.crit(ctx.whitelistError.message, ctx.whitelistError.error);
+      ctx.server?.stop(false);
+      return reject(500, "The whitelist was not set up correctly");
+    }
 
-      const user = ctx.user;
-      if (!user && !AUTHENTICATION_DISABLED) {
-        return reject(401, "This route requires authentication.");
-      }
-      const allowed =
-        WHITELIST_DISABLED ||
-        ctx.whitelistRole === "owner" ||
-        (ctx.whitelistRole != null && isAllowed(ctx.whitelistRole));
-      if (!allowed && !AUTHENTICATION_DISABLED) {
-        return reject(403, "You are not authorized to access this resource");
-      }
-    });
-};
+    const user = ctx.user;
+    if (!user && !AUTHENTICATION_DISABLED) {
+      return reject(401, "This route requires authentication.");
+    }
+    const allowed =
+      WHITELIST_DISABLED ||
+      ctx.whitelistRole === "owner" ||
+      (ctx.whitelistRole != null && isAllowed(ctx.whitelistRole));
+    if (!allowed && !AUTHENTICATION_DISABLED) {
+      return reject(403, "You are not authorized to access this resource");
+    }
+  });

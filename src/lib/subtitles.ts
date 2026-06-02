@@ -1,7 +1,6 @@
 import { mkdir } from "fs/promises";
 import { resolve } from "path";
-import type { BunFile } from "bun";
-import type { Context } from "elysia";
+import { file as elysiaFile, type Context, type ElysiaFile } from "elysia";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 import type { Episode } from "./types";
@@ -104,7 +103,7 @@ export async function downloadSubtitles(
   filepath: string,
   episode: Episode,
   language: string,
-): Promise<BunFile | { message: string }> {
+): Promise<ElysiaFile | { message: string }> {
   function reject(message: string, code: number = 500) {
     ctx.set.status = code;
     return { message };
@@ -210,5 +209,5 @@ export async function downloadSubtitles(
   const file = getSubtitleFile(filepath);
   await file.write(arrayBuffer);
   setCacheControl(ctx, STATIC_CACHE_DURATION_MINS);
-  return file;
+  return elysiaFile(filepath);
 }
