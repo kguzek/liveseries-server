@@ -9,7 +9,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository code
@@ -21,5 +21,14 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Typecheck (tsgo)
+        run: bun run types:check:go
+        if: always()
+
+      - name: Typecheck
+        run: bun run types:check
+        if: always()
+
       - name: Build application
         run: bun run build
+        if: always()
