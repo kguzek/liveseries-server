@@ -13,6 +13,21 @@ import { getLogger } from "@/lib/logger";
 
 const logger = getLogger(__filename);
 
+async function refreshWhitelistMetadataIfNeeded() {
+  if (whitelistMetadata.whitelist != null && !isWhitelistStale()) {
+    return { whitelist: whitelistMetadata.whitelist } as const;
+  }
+
+  const result = await readWhitelistFile();
+  if (result.message) {
+    return result;
+  }
+
+  whitelistMetadata.whitelist = result.whitelist;
+  whitelistMetadata.lastReadTimestamp = Date.now();
+  return result;
+}
+
 type PermissionCategory = Exclude<WhitelistRole, "owner"> | "public";
 type PermissionsRecord = Partial<Record<RequestMethod, string[]>>;
 
@@ -63,12 +78,20 @@ export const whitelistMiddleware = (app: Elysia) => {
 
   return app
     .derive({ as: "scoped" }, async (ctx) => {
+      const whitelistResult = await refreshWhitelistMetadataIfNeeded();
       const token =
         ctx.headers["authorization"]?.match(/^Bearer (.+)$/)?.at(1) ||
         ctx.cookie["payload-token"]?.value ||
         ctx.query["access_token"];
       const user = await getUserFromToken(token);
-      return { user };
+      const whitelistRole = whitelistResult.message
+        ? null
+        : (findWhitelistedUser(user)?.role ?? null);
+      return {
+        user,
+        whitelistRole,
+        whitelistError: whitelistResult.message ? whitelistResult : null,
+      };
     })
     .onBeforeHandle(async (ctx) => {
       const method = ctx.request.method.toUpperCase() as RequestMethod;
@@ -94,26 +117,20 @@ export const whitelistMiddleware = (app: Elysia) => {
         return { message, status: getStatusText(status) };
       }
 
-      if (whitelistMetadata.whitelist == null || isWhitelistStale()) {
-        const result = await readWhitelistFile();
-        if (result.message) {
-          logger.crit(result.message, result.error);
-          app.stop(false);
-          return reject(500, "The whitelist was not set up correctly");
-        }
-        whitelistMetadata.whitelist = result.whitelist;
-        whitelistMetadata.lastReadTimestamp = Date.now();
+      if (ctx.whitelistError) {
+        logger.crit(ctx.whitelistError.message, ctx.whitelistError.error);
+        app.stop(false);
+        return reject(500, "The whitelist was not set up correctly");
       }
 
       const user = ctx.user;
       if (!user && !AUTHENTICATION_DISABLED) {
         return reject(401, "This route requires authentication.");
       }
-      const whitelistItem = findWhitelistedUser(user);
       const allowed =
-        whitelistItem == null
+        ctx.whitelistRole == null
           ? !WHITELIST_DISABLED
-          : whitelistItem.role === "owner" || isAllowed(whitelistItem.role);
+          : ctx.whitelistRole === "owner" || isAllowed(ctx.whitelistRole);
       if (!allowed && !AUTHENTICATION_DISABLED) {
         return reject(403, "You are not authorized to access this resource");
       }
