@@ -8,10 +8,11 @@ export function getRequestIp(
   ctx: Pick<Context, "headers" | "server" | "request"> | Pick<Request, "headers">,
 ) {
   const headers = ctx.headers;
-  const ipHeader =
-    headers instanceof Headers
+  const ipHeader = headers
+    ? headers instanceof Headers
       ? headers.get("cf-connecting-ip") || headers.get("x-forwarded-for")
-      : headers["cf-connecting-ip"] || headers["x-forwarded-for"];
+      : headers["cf-connecting-ip"] || headers["x-forwarded-for"]
+    : undefined;
   if (!ipHeader)
     return "server" in ctx
       ? ctx.server?.requestIP(ctx.request)?.address.replace(/^::ffff:/, "")

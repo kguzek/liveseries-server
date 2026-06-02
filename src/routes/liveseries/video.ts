@@ -1,5 +1,5 @@
 import { basename } from "path";
-import Elysia, { t } from "elysia";
+import Elysia, { file as elysiaFile, t } from "elysia";
 
 import {
   EPISODE_EXAMPLE,
@@ -28,7 +28,7 @@ export const videoRouter = new Elysia({ prefix: "/liveseries" })
       );
       if (result.error == null) {
         setCacheControl(ctx, STATIC_CACHE_DURATION_MINS);
-        return result.file;
+        return elysiaFile(result.file.name!);
       }
       return result.error;
     },
