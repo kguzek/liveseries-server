@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { rateLimit } from "elysia-rate-limit";
 
 import type { WhitelistRole } from "@/lib/types";
-import { getStatusText } from "@/lib/http";
+import { getRequestIp, getStatusText } from "@/lib/http";
 
 const CRON_RATE_LIMIT_KEY_PREFIX = "cron:";
 const CRON_RATE_LIMIT_DURATION = 4 * 60 * 60 * 1000;
@@ -26,7 +26,7 @@ export const rateLimitMiddleware = (app: Elysia) =>
         server,
         { whitelistRole }: { whitelistRole: WhitelistRole | null },
       ) => {
-        const requestIp = server?.requestIP(request)?.address ?? "";
+        const requestIp = getRequestIp({ headers: request.headers, server, request }) ?? "";
         return whitelistRole === "cron"
           ? `${CRON_RATE_LIMIT_KEY_PREFIX}${requestIp}`
           : requestIp;

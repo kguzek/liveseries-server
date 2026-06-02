@@ -78,7 +78,9 @@ export const whitelistMiddleware = (app: Elysia) => {
 
   return app
     .derive({ as: "scoped" }, async (ctx) => {
-      const whitelistResult = await refreshWhitelistMetadataIfNeeded();
+      const whitelistResult = WHITELIST_DISABLED
+        ? { whitelist: [] }
+        : await refreshWhitelistMetadataIfNeeded();
       const token =
         ctx.headers["authorization"]?.match(/^Bearer (.+)$/)?.at(1) ||
         ctx.cookie["payload-token"]?.value ||
@@ -128,9 +130,9 @@ export const whitelistMiddleware = (app: Elysia) => {
         return reject(401, "This route requires authentication.");
       }
       const allowed =
-        ctx.whitelistRole == null
-          ? !WHITELIST_DISABLED
-          : ctx.whitelistRole === "owner" || isAllowed(ctx.whitelistRole);
+        WHITELIST_DISABLED ||
+        ctx.whitelistRole === "owner" ||
+        (ctx.whitelistRole != null && isAllowed(ctx.whitelistRole));
       if (!allowed && !AUTHENTICATION_DISABLED) {
         return reject(403, "You are not authorized to access this resource");
       }

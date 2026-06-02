@@ -4,13 +4,18 @@ import type { StatusCode } from "./types";
 import { STATUS_CODES } from "./constants";
 
 /** Extracts the request's originating IP address, taking into account proxies. */
-export function getRequestIp(ctx: Pick<Context, "headers" | "server" | "request">) {
+export function getRequestIp(
+  ctx: Pick<Context, "headers" | "server" | "request"> | Pick<Request, "headers">,
+) {
+  const headers = ctx.headers;
   const ipHeader =
-    "headers" in ctx
-      ? ctx.headers["cf-connecting-ip"] || ctx.headers["x-forwarded-for"]
-      : null;
+    headers instanceof Headers
+      ? headers.get("cf-connecting-ip") || headers.get("x-forwarded-for")
+      : headers["cf-connecting-ip"] || headers["x-forwarded-for"];
   if (!ipHeader)
-    return ctx.server?.requestIP(ctx.request)?.address.replace(/^::ffff:/, "");
+    return "server" in ctx
+      ? ctx.server?.requestIP(ctx.request)?.address.replace(/^::ffff:/, "")
+      : undefined;
   if (Array.isArray(ipHeader)) return ipHeader[0];
   return ipHeader.split(",")[0].trim();
 }
