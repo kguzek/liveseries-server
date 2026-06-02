@@ -1,4 +1,4 @@
-# The Guzek UK LiveSeries Server
+# LiveSeries Server
 
 ![AGPLv3](https://www.gnu.org/graphics/agplv3-155x51.png)
 
@@ -20,7 +20,7 @@ You can choose to subscribe to automatic downloads, or manually select episodes 
 
 ### Docker Compose
 
-The recommended way to use the Guzek UK LiveSeries Server is to use Docker Compose.
+The recommended way to use the LiveSeries Server is to use Docker Compose.
 
 > [!TIP]
 > Instead of cloning the entire repository, you can just download the `compose.yaml`, `.env.template` and `whitelist.template.json` files. The docker images are hosted on [my container registry](https://registry.guzek.uk), meaning you don't need to download the source code to run the application.
@@ -34,13 +34,13 @@ The recommended way to use the Guzek UK LiveSeries Server is to use Docker Compo
 2. Clone this repository:
 
    ```bash
-   git clone --depth 1 https://github.com/kguzek/guzek-uk-liveseries-server
+   git clone --depth 1 https://github.com/kguzek/liveseries-server
    ```
 
    Then, enter the newly-created project directory:
 
    ```bash
-   cd guzek-uk-liveseries-server
+   cd liveseries-server
    ```
 
 3. Configure your environment variables. Start by copying `.env.template` to `.env`:
@@ -102,7 +102,7 @@ The manual installation involves more steps than the docker compose method, but 
 1. Clone this repository:
 
    ```bash
-   git clone --depth 1 https://github.com/kguzek/guzek-uk-liveseries-server
+   git clone --depth 1 https://github.com/kguzek/liveseries-server
    ```
 
 2. Install the project dependencies, including bun:
@@ -110,7 +110,7 @@ The manual installation involves more steps than the docker compose method, but 
    ```bash
    curl -fsSL https://bun.sh/install | bash
    source ~/.bashrc
-   cd guzek-uk-liveseries-server
+   cd liveseries-server
    bun install
    ```
 
@@ -166,7 +166,7 @@ The manual installation involves more steps than the docker compose method, but 
    ```
 
 9. Optional (for automatic subtitle downloading): create an account at `opensubtitles.com` and [create a developer API consumer](https://www.opensubtitles.com/en/consumers). Then, store your OpenSubtitles API key in `.env` as `SUBTITLES_API_KEY_DEV`; I haven't figured out how to use the production keys yet (ignore the other `SUBTITLES_API_*` fields)
-10. Copy `whitelist.template.json` to a new file called `whitelist.json`, and add to it your user UUID. This can be found at your Guzek UK profile -- only registered users listed here will be able to access your server! You can safely remove the UUID that's there by default (my personal account UUID), it's just there to show the format. See [the relevant section below](#automatic-unwatched-episodes-checking) for the opt-in CRON user UUID to add to the whitelist.
+10. Copy `whitelist.template.json` to a new file called `whitelist.json`, and add to it your user UUID. This can be found at your profile page -- only registered users listed here will be able to access your server! You can safely remove the UUID that's there by default (my personal account UUID), it's just there to show the format. See [the relevant section below](#automatic-unwatched-episodes-checking) for the opt-in CRON user UUID to add to the whitelist.
 
     ```bash
     cp whitelist{.template,}.json
@@ -192,7 +192,7 @@ The manual installation involves more steps than the docker compose method, but 
     ```
 
 14. Optional: expose your server to the Internet by port forwarding it in your router settings (expose internal port `5017` to whatever external port you choose)
-15. Add the URL of your server to your Guzek UK profile (for same-network access you can use a local address like `http://10.0.0.10:5017` or even `http://localhost:5017` -- requests are all made through the browser)
+15. Add the URL of your server to your profile settings (for same-network access you can use a local address like `http://10.0.0.10:5017` or even `http://localhost:5017` -- requests are all made through the browser)
 
 ## FAQ
 
@@ -243,7 +243,7 @@ You may notice that the websocket endpoint is listed as public, but the websocke
 
 ### Automatic unwatched episodes checking
 
-The central Guzek UK API has a CRON job set up to check each user's unwatched episodes every six hours, so there is no recurring task on this self-hosted server. If you wish to use this feature, simply add the official CRON user UUID to your whitelist, too:
+Liveseries provides a complimentary centrally-operated CRON job set up to check each user's unwatched episodes every six hours, so there is no recurring task on this self-hosted server. If you wish to use this feature, simply add the official CRON user UUID to your whitelist, too:
 
 ```text
 c17cc350-9be9-453a-ba16-208c5b9be1fe
@@ -265,7 +265,7 @@ Available query parameters:
 
 - sort_by -- one of the fields you wish to sort by, e.g. `seeders`
 - sort_direction -- `"asc"` or `"ascending"`, defaults to descending
-- select -- `"top_result"`: this returns only the "best" torrent, according to my [selection algorithm](https://github.com/kguzek/guzek-uk-liveseries-server/tree/main/src/torrentIndexers/torrentIndexer.ts#L149). Defaults to returning the whole list of results
+- select -- `"top_result"`: this returns only the "best" torrent, according to my [selection algorithm](https://github.com/kguzek/liveseries-server/tree/main/src/torrentIndexers/torrentIndexer.ts#L149). Defaults to returning the whole list of results
 
 Example:
 
@@ -284,14 +284,14 @@ Visit the `/swagger` endpoint for a detailed layout of each route along with rou
 
 Copyright © 2024-2025 by Konrad Guzek
 
-This file is part of the Guzek UK LiveSeries Server.
+This file is part of LiveSeries.
 
-The Guzek UK LiveSeries Server is free software: you can redistribute it and/or modify
+LiveSeries is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-The Guzek UK LiveSeries Server is distributed in the hope that it will be useful,
+LiveSeries is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Affero General Public License for more details.
