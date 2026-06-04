@@ -4,9 +4,9 @@
 
 ## Intro
 
-This is a free, open source self-hostable web server written using [Elysia](https://elysiajs.com/) which allows you to automatically download TV shows through [LiveSeries](https://www.guzek.uk/liveseries).
-Once you get it up and running on your machine, all you need to do is visit [www.guzek.uk](https://www.guzek.uk), create an account, and enter your LiveSeries server's URL in the appropriate box in your profile.
-Then, simply navigate to [/liveseries](https://www.guzek.uk/liveseries), select a couple shows to watch -- and watch the magic happen!
+This is a free, open source self-hostable web server written using [Elysia](https://elysiajs.com/) which allows you to automatically download TV shows through [LiveSeries](https://liveseri.es).
+Once you get it up and running on your machine, all you need to do is visit [liveseri.es](https://liveseri.es/signup), create an account, and enter your self-hosted server's URL in the appropriate box in your profile.
+Then, simply navigate to your dashboard, select a couple shows to watch -- and watch the magic happen!
 
 You can choose to subscribe to automatic downloads, or manually select episodes to be downloaded from the list.
 
@@ -58,7 +58,7 @@ The recommended way to use the LiveSeries Server is to use Docker Compose.
 
    If you leave out the rest, the application will work just fine.
 
-4. Configure your server whitelist. If you haven't done so already, register an account at [www.guzek.uk](https://www.guzek.uk/signup), and copy your account UUID from your profile page. Then, copy `whitelist.template.json` into `whitelist.json`:
+4. Configure your server whitelist. If you haven't done so already, register an account at [liveseri.es](https://liveseri.es/signup), and copy your account UUID from your profile page. Then, copy `whitelist.template.json` into `whitelist.json`:
 
    ```bash
    cp whitelist{.template,}.json
