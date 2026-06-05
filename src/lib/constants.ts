@@ -62,8 +62,9 @@ export const EPISODE_EXAMPLE = "Chicago Fire S13E15";
 const CORS_ORIGINS_DEV = DEV_MODE ? ["localhost"] : [];
 const ADDITIONAL_CORS_ORIGINS = process.env.CORS_ORIGINS?.split(",") ?? [];
 export const CORS_ORIGINS = [
-  "www.guzek.uk",
-  "beta.guzek.uk",
+  "liveseri.es",
+  "www.liveseri.es",
+  "beta.liveseri.es",
   ...CORS_ORIGINS_DEV,
   ...ADDITIONAL_CORS_ORIGINS,
 ].reduce<string[]>((acc, origin) => {
@@ -74,4 +75,4 @@ export const CORS_ORIGINS = [
   return acc;
 }, []);
 
-export const PAYLOADCMS_URL_BASE = "https://www.guzek.uk";
+export const PAYLOADCMS_URL_BASE = "https://liveseri.es";

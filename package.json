@@ -1,9 +1,9 @@
 {
-  "name": "guzek-uk-liveseries-server",
-  "version": "4.0.1",
+  "name": "liveseries-server",
+  "version": "4.1.0",
   "description": "A self-hostable server for downloading & storing your favourite TV shows.",
   "author": "Konrad Guzek",
-  "homepage": "https://github.com/kguzek/guzek-uk-liveseries-server#readme",
+  "homepage": "https://liveseri.es",
   "license": "AGPL-3.0-only",
   "engines": {
     "bun": "^1.2.5"
@@ -17,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kguzek/guzek-uk-liveseries-server.git"
+    "url": "git+https://github.com/kguzek/liveseries-server.git"
   },
   "bugs": {
-    "url": "https://github.com/kguzek/guzek-uk-liveseries-server/issues"
+    "url": "https://github.com/kguzek/liveseries-server/issues"
   },
   "files": [
     "dist",

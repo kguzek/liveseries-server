@@ -35,7 +35,7 @@ async function init() {
       swagger({
         documentation: {
           info: {
-            title: "Guzek UK LiveSeries Server",
+            title: "LiveSeries Server",
             version: VERSION,
             contact: {
               name: "Konrad Guzek",

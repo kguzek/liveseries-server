@@ -1,7 +1,8 @@
 import { mkdir } from "fs/promises";
 import { resolve } from "path";
-import { file as elysiaFile, type Context, type ElysiaFile } from "elysia";
+import type { Context, ElysiaFile } from "elysia";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import { file as elysiaFile } from "elysia";
 
 import type { Episode } from "./types";
 import { STATIC_CACHE_DURATION_MINS } from "./constants";
@@ -21,7 +22,7 @@ export const getSubtitleFile = (path: string) =>
 
 export async function initialiseSubtitleClient() {
   const headers = {
-    "User-Agent": "Guzek UK LiveSeries API v4.0.0",
+    "User-Agent": "LiveSeries API v4.0.0",
     "Content-Type": "application/json",
     Accept: "application/json",
   };
