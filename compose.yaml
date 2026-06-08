@@ -31,7 +31,7 @@ services:
       - TR_CONFIG_PATH=/config
       - TR_WATCH_PATH=/watch
     volumes:
-      - ${TR_DOWNLOAD_PATH:-/var/lib/transmission-daemon/downloads}:/downloads
+      - ${TR_DOWNLOAD_PATH:-/var/lib/transmission-daemon/downloads}:/downloads:z
       - ${TR_CONFIG_PATH:-/var/lib/transmission-daemon/config}:/config
       - ${TR_WATCH_PATH:-/var/lib/transmission-daemon/watch}:/watch
     ports:
