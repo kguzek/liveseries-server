@@ -1,10 +1,9 @@
 FROM node:20-alpine
 
-RUN apk update &&  apk add jq
+RUN apk update && apk add jq
 RUN npm install --global npm@latest
 WORKDIR /app
 COPY package.json .
-RUN cat package.json | jq 'del(.dependencies) | .devDependencies |= {prisma:.prisma}' > package.json.temp && mv package.json.temp package.json
-RUN npm install
+RUN npm install --global prisma@$(jq -r .devDependencies.prisma package.json) && rm package.json && apk del jq
 COPY prisma prisma
 CMD ["npx", "prisma", "migrate", "deploy"]
