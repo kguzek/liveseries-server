@@ -1,9 +1,7 @@
 FROM node:20-alpine
 
-RUN apk update && apk add jq
 RUN npm install --global npm@latest
+RUN npm install --global @clera-solutions/prisma-migrate-lite@1
 WORKDIR /app
-COPY package.json .
-RUN npm install --global prisma@$(jq -r .devDependencies.prisma package.json) && rm package.json && apk del jq
 COPY prisma prisma
-CMD ["npx", "prisma", "migrate", "deploy"]
+CMD ["npx", "prisma-migrate-lite", "--schema", "./prisma/schema.prisma"]
