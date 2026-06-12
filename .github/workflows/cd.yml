@@ -1,11 +1,13 @@
-name: CD
+name: Continuous Deployment
 
 permissions:
   contents: read
+  id-token: write
 
 on:
   push:
     branches: ["main"]
+    tags: ["v*"]
   workflow_dispatch:
 
 jobs:
@@ -13,15 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v6
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v4.1.2
+
       - name: Login to container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ vars.REGISTRY_HOSTNAME }}
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-
-      - name: Checkout repository code
-        uses: actions/checkout@v4
 
       - name: Run deploy script
         run: ./deploy.sh

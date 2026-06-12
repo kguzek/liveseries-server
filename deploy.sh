@@ -1,13 +1,11 @@
 #!/bin/bash
 
-NAMESPACE='liveseries'
+REGISTRY_HOSTNAME="${REGISTRY_HOSTNAME:-registry.guzek.uk}"
+PROJECT_NAME='liveseries'
 
 for dockerfile in ./Dockerfile.*; do
   repository=${dockerfile#./Dockerfile.}
-  tag="registry.guzek.uk/$NAMESPACE/$repository:latest"
-  # DOCKER_TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$NAMESPACE/$repository:pull" | jq -r '.token')
-  # REMOTE_MANIFEST=$(curl -sH "Authorization: Bearer $DOCKER_TOKEN" "https://registry.hub.docker.com/v2/$NAMESPACE/$repository/manifests/latest" | jq -r .layers[0].digest)
-  # LOCAL_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$tag" | cut -d '@' -f 2)
+  tag="$REGISTRY_HOSTNAME/$PROJECT_NAME/$repository:latest"
 
   echo "Building $repository..."
   build_output=$(docker build -t "$tag" -f "$dockerfile" . 2>&1)
@@ -19,6 +17,8 @@ for dockerfile in ./Dockerfile.*; do
   if [[ "$cached_steps" -lt "$total_steps" || $1 = "--force" ]]; then
     echo "Pushing image..."
     docker push "$tag"
+    digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}' | grep "^$REGISTRY_HOSTNAME/")
+    cosign sign --yes "$digest"
   else
     echo "Skipping push."
   fi
