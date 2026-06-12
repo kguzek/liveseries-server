@@ -18,7 +18,7 @@ for dockerfile in ./Dockerfile.*; do
     echo "Pushing image..."
     docker push "$tag"
     digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}' | grep "^$REGISTRY_HOSTNAME/")
-    cosign sign --yes "$digest"
+    cosign sign --yes --new-bundle-format=false --use-signing-config=false "$digest"
   else
     echo "Skipping push."
   fi
