@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17
-    container_name: postgresql
+    container_name: liveseries_postgres
     restart: always
     shm_size: 128mb
     environment:
@@ -15,9 +15,10 @@ services:
       retries: 5
     volumes:
       - ${DATABASE_DATA_PATH}:/var/lib/postgresql
+
   transmission:
     image: registry.guzek.uk/liveseries/transmission
-    container_name: transmission
+    container_name: liveseries_transmission
     restart: always
     environment:
       - DOCKER_MODS=linuxserver/mods:transmission-env-var-settings
@@ -44,17 +45,19 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
+
   migrations:
     image: registry.guzek.uk/liveseries/migrations
-    container_name: migrations
+    container_name: liveseries_migrations
     depends_on:
       db:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
+
   server:
     image: registry.guzek.uk/liveseries/server
-    container_name: liveseries
+    container_name: liveseries_server
     restart: always
     depends_on:
       migrations:
