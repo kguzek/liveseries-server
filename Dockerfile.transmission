@@ -1,4 +1,0 @@
-FROM linuxserver/transmission:latest
-
-RUN apk update && apk add ffmpeg
-RUN ffmpeg -version || (echo "ffmpeg not found" && exit 1)

@@ -17,7 +17,7 @@ services:
       - ${DATABASE_DATA_PATH}:/var/lib/postgresql
 
   transmission:
-    image: registry.guzek.uk/liveseries/transmission
+    image: linuxserver/transmission:latest
     container_name: liveseries_transmission
     restart: always
     environment:
