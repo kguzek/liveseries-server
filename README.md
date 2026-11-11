@@ -2,6 +2,11 @@
 
 ![AGPLv3](https://www.gnu.org/graphics/agplv3-155x51.png)
 
+## Deprecation notice
+
+> [!WARNING]
+> The LiveSeries project is no longer seeing active development. The source code will remain public and licensed under the AGPLv3 but it is not recommended to use this software. For new setups it is recommended to use a self-hosted [arr stack](https://wiki.servarr.com/).
+
 ## Intro
 
 This is a free, open source self-hostable web server written using [Elysia](https://elysiajs.com/) which allows you to automatically download TV shows through [LiveSeries](https://liveseri.es).
@@ -50,7 +55,6 @@ The recommended way to use the LiveSeries Server is to use Docker Compose.
    ```
 
    The fields that you **must** update are:
-
    - `DATABASE_USER`
    - `DATABASE_PASSWORD`
    - `TR_USER`
@@ -67,16 +71,16 @@ The recommended way to use the LiveSeries Server is to use Docker Compose.
    Add your UUID to the array. The UUIDs that are there by default is safe to remove. If you wish to opt-in to automatic torrent downloads by a central CRON job, this file is where you must add the [Cron User UUID](#automatic-unwatched-episodes-checking). Below is what your `whitelist.json` file might look like:
 
    ```json
-    [
-      {
-        "uuid": "8b1061a9-a170-4b8a-a9bd-af330d83ef71",
-        "role": "viewer"
-      },
-      {
-        "uuid": "c17cc350-9be9-453a-ba16-208c5b9be1fe",
-        "role": "cron"
-      }
-    ]
+   [
+     {
+       "uuid": "8b1061a9-a170-4b8a-a9bd-af330d83ef71",
+       "role": "viewer"
+     },
+     {
+       "uuid": "c17cc350-9be9-453a-ba16-208c5b9be1fe",
+       "role": "cron"
+     }
+   ]
    ```
 
    Refer to the FAQ for [more information about the whitelist](#3-what-are-the-available-whitelist-settings).
